@@ -22,6 +22,7 @@ namespace IngameScript
 {
     public partial class Program : MyGridProgram
     {
+        
         // This file contains your actual script.
         //
         // You can either keep all your code here, or you can create separate
@@ -34,6 +35,7 @@ namespace IngameScript
 
         public Program()
         {
+            Runtime.UpdateFrequency = UpdateFrequency.Update100;
             // The constructor, called only once every session and
             // always before any other method is called. Use it to
             // initialize your script. 
@@ -48,6 +50,7 @@ namespace IngameScript
 
         public void Save()
         {
+            
             // Called when the program needs to save its state. Use
             // this method to save your state to the Storage field
             // or some other means. 
@@ -58,6 +61,69 @@ namespace IngameScript
 
         public void Main(string argument, UpdateType updateSource)
         {
+            List<IMyBatteryBlock> batteries = new List<IMyBatteryBlock>();
+            GridTerminalSystem.GetBlockGroupWithName("Ship Batteries");
+
+            double totalStored = 0;
+            double totalCapacity = 0;
+
+            foreach (var battery in batteries){
+                string[] lines = battery.DetailedInfo.Split('\n');
+                foreach (var line in lines){
+                    if (line.StartsWith("Stored power:", StringComparison.OrdinalIgnoreCase)){
+                        String[] parts = line.Substring("Stored power:".Length).Trim().Split('/');
+                        if (parts.Length == 2){
+                            double current = ParsePower(parts[0]);
+                            double max = ParsePower(parts[1]);
+                            totalStored += current;
+                            totalCapacity += max;
+                        }
+                    }
+                }
+                
+            }
+
+            double percentage = totalCapacity > 0 ? (totalStored / totalCapacity *100.00) : 0;
+
+            String output = $"Battery Status\n" + 
+                            $"-------------\n" +
+                            $"Stored: {totalStored:F2} Mwh\n" +
+                            $"Max:    {totalCapacity:F2} Mwh\n" +
+                            $"Charge: {percentage:F2} %";
+
+            Echo(output);
+
+            var lcds = new List<IMyTextPanel>();
+            GridTerminalSystem.GetBlocksOfType(lcds, panel => panel.CustomName.Contains("Battery Status"));
+
+            foreach (var lcd in lcds){
+                lcd.ContentType = ContentType.TEXT_AND_IMAGE;
+                lcd.WriteText(output);
+            } 
+double ParsePower(string input)
+{
+    input = input.Trim().ToUpper();
+    double multiplier = 1.0;
+
+    if (input.EndsWith("MWH"))
+    {
+        input = input.Replace("MWH", "").Trim();
+        multiplier = 1.0;
+    }
+    else if (input.EndsWith("KWH"))
+    {
+        input = input.Replace("KWH", "").Trim();
+        multiplier = 0.001;
+    }
+
+    double value;
+    if (double.TryParse(input, out value))
+    {
+        return value * multiplier;
+    }
+
+    return 0;
+}
             // The main entry point of the script, invoked every time
             // one of the programmable block's Run actions are invoked,
             // or the script updates itself. The updateSource argument

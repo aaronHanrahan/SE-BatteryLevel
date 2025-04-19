@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netframework48</TargetFramework>
     <RootNamespace>IngameScript</RootNamespace>
-    <LangVersion>6</LangVersion>
+    <LangVersion>7</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Release;Debug</Configurations>
     <Platforms>x64</Platforms>
