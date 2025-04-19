@@ -59,47 +59,62 @@ namespace IngameScript
             // needed.
         }
 
-        public void Main(string argument, UpdateType updateSource)
+
+public void Main(string argument, UpdateType updateSource)
+{
+    var batteries = new List<IMyBatteryBlock>();
+    GridTerminalSystem.GetBlocksOfType<IMyBatteryBlock>(batteries);
+
+    double totalStored = 0;
+    double totalCapacity = 0;
+
+    foreach (var battery in batteries)
+    {
+        
+        string[] lines = battery.DetailedInfo.Split('\n');
+        foreach (var line in lines)
         {
-            List<IMyBatteryBlock> batteries = new List<IMyBatteryBlock>();
-            GridTerminalSystem.GetBlockGroupWithName("Ship Batteries");
-
-            double totalStored = 0;
-            double totalCapacity = 0;
-
-            foreach (var battery in batteries){
-                string[] lines = battery.DetailedInfo.Split('\n');
-                foreach (var line in lines){
-                    if (line.StartsWith("Stored power:", StringComparison.OrdinalIgnoreCase)){
-                        String[] parts = line.Substring("Stored power:".Length).Trim().Split('/');
-                        if (parts.Length == 2){
-                            double current = ParsePower(parts[0]);
-                            double max = ParsePower(parts[1]);
-                            totalStored += current;
-                            totalCapacity += max;
-                        }
-                    }
+            if (line.StartsWith("Stored power:", StringComparison.OrdinalIgnoreCase))
+            {
+                // Example: "Stored power: 2.50 MWh / 3.00 MWh"
+                string[] parts = line.Substring("Stored power:".Length).Trim().Split('/');
+                if (parts.Length == 2)
+                {
+                    double current = ParsePower(parts[0]);
+                    double max = ParsePower(parts[1]);
+                    totalStored += current;
+                    totalCapacity += max;
                 }
-                
             }
+        }
+    }
 
-            double percentage = totalCapacity > 0 ? (totalStored / totalCapacity *100.00) : 0;
+    double percent = totalCapacity > 0 ? (totalStored / totalCapacity * 100.0) : 0;
 
-            String output = $"Battery Status\n" + 
-                            $"-------------\n" +
-                            $"Stored: {totalStored:F2} Mwh\n" +
-                            $"Max:    {totalCapacity:F2} Mwh\n" +
-                            $"Charge: {percentage:F2} %";
+    string output = "Battery Status\n";
+    output += "----------------------\n";
+    output += "Stored: " + totalStored.ToString("F2") + " MWh\n";
+    output += "Max:    " + totalCapacity.ToString("F2") + " MWh\n";
+    output += "Charge: " + percent.ToString("F1") + "%";
 
-            Echo(output);
+    Echo(output);
 
-            var lcds = new List<IMyTextPanel>();
-            GridTerminalSystem.GetBlocksOfType(lcds, panel => panel.CustomName.Contains("Battery Status"));
+    // Now find LCDs manually and check their names
+    var lcds = new List<IMyTextPanel>();
+    GridTerminalSystem.GetBlocksOfType<IMyTextPanel>(lcds);
 
-            foreach (var lcd in lcds){
-                lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-                lcd.WriteText(output);
-            } 
+    for (int i = 0; i < lcds.Count; i++)
+    {
+        var panel = lcds[i];
+        if (panel.CustomName.Contains("Battery Status"))
+        {
+            panel.ContentType = ContentType.TEXT_AND_IMAGE;
+            panel.WriteText(output);
+        }
+    }
+}
+
+// Helper function to parse "2.50 MWh" or "500 kWh" into a double (MWh)
 double ParsePower(string input)
 {
     input = input.Trim().ToUpper();
@@ -124,15 +139,6 @@ double ParsePower(string input)
 
     return 0;
 }
-            // The main entry point of the script, invoked every time
-            // one of the programmable block's Run actions are invoked,
-            // or the script updates itself. The updateSource argument
-            // describes where the update came from. Be aware that the
-            // updateSource is a  bitfield  and might contain more than 
-            // one update type.
-            // 
-            // The method itself is required, but the arguments above
-            // can be removed if not needed.
-        }
+
     }
 }

@@ -1,0 +1,37 @@
+# Ignore build output
+bin/
+obj/
+
+# MDK-SE specific cache/output folders
+mdk/
+
+# Ignore temporary files
+*.user
+*.suo
+*.userprefs
+*.csproj.user
+
+# Ignore Visual Studio Code settings
+.vscode/
+
+# Ignore backups, temp files
+*.bak
+*.tmp
+*.log
+
+# Ignore Rider IDE folders
+.idea/
+
+# Ignore VS-generated test results
+TestResults/
+
+# Ignore ReSharper and similar tools
+_ReSharper*/
+*.DotSettings.user
+
+# Battery Level-specific
+Battery Level.csproj.user
+Battery Level.v12.suo
+
+# Git folder artifacts (just in case)
+*.orig
