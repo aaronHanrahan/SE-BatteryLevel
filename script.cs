@@ -1,27 +1,9 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
-using VRageMath;
-
-namespace IngameScript
-{
-    public partial class Program : MyGridProgram
-    {
+// R e a d m e
+// -----------
+// 
+// In this file you can include any instructions or other comments you want to have injected onto the 
+// top of your final script. You can safely delete this file if you do not want any such comments.
+// 
         
         // This file contains your actual script.
         //
@@ -94,9 +76,9 @@ public void Main(string argument, UpdateType updateSource)
                     maxStored = ParsePower(parts[0]);
                 }
             }
-            else if (line.StartsWith("Stored Power:", StringComparison.OrdinalIgnoreCase))
+            else if (line.StartsWith("Current Stored Power:", StringComparison.OrdinalIgnoreCase))
             {
-                string[] parts = line.Substring("Stored Power:".Length).Trim().Split();
+                string[] parts = line.Substring("Current Stored Power:".Length).Trim().Split();
                 if (parts.Length > 0)
                 {
                     currentStored = ParsePower(parts[0]);
@@ -156,9 +138,4 @@ double ParsePower(string input)
     }
 
     return 0;
-}
-
-
-
-    }
 }
